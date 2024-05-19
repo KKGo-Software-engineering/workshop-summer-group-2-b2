@@ -40,7 +40,7 @@ func New(db *sql.DB, cfg config.Config, logger *zap.Logger) *Server {
 
 	{
 		h := expenses.New(cfg.FeatureFlag, db)
-		v1.GET("/expenses", h.GetAll)
+		v1.GET("/expenses", h.GetExpenses)
 	}
 
 	return &Server{e}
