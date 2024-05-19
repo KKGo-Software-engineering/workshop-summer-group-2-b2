@@ -58,14 +58,46 @@ func (h handler) GetSummary(c echo.Context) error {
 	}
 	defer rows.Close()
 
+	// var responseObject = SummaryResponse{}
+	// for rows.Next() {
+	// 	err := rows.Scan(&responseObject.TotalIncome, &responseObject.TotalExpenses, &responseObject.CurrentBalance)
+	// 	if err != nil {
+	// 		logger.Error("scan error", zap.Error(err))
+	// 		return c.JSON(http.StatusInternalServerError, err.Error())
+	// 	}
+	// }
+
+	// return c.JSON(http.StatusOK, responseObject)
+
 	var responseObject = SummaryResponse{}
-	for rows.Next() {
-		err := rows.Scan(&responseObject.TotalIncome, &responseObject.TotalExpenses, &responseObject.CurrentBalance)
+	var totalIncome, totalExpenses, currentBalance sql.NullFloat64
+
+	if rows.Next() {
+		err := rows.Scan(&totalIncome, &totalExpenses, &currentBalance)
 		if err != nil {
 			logger.Error("scan error", zap.Error(err))
 			return c.JSON(http.StatusInternalServerError, err.Error())
 		}
+
+		if totalIncome.Valid {
+			responseObject.TotalIncome = totalIncome.Float64
+		} else {
+			responseObject.TotalIncome = 0
+		}
+
+		if totalExpenses.Valid {
+			responseObject.TotalExpenses = totalExpenses.Float64
+		} else {
+			responseObject.TotalExpenses = 0
+		}
+
+		if currentBalance.Valid {
+			responseObject.CurrentBalance = currentBalance.Float64
+		} else {
+			responseObject.CurrentBalance = 0
+		}
 	}
 
 	return c.JSON(http.StatusOK, responseObject)
+
 }

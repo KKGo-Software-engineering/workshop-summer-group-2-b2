@@ -14,18 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
-)
-
-func TestCreateSpenderIT(t *testing.T) {
-	t.Run("create spender successfully when feature toggle is enable", func(t *testing.T) {
-		sql := newDatabase(t)
-
-		h := New(config.FeatureFlag{EnableCreateSpender: true}, sql)
-		e := echo.New()
-		defer e.Close()
-
-		e.POST("/spenders", h.Create)
-
+)git
 		payload := `{"name": "HongJot", "email": "hong@jot.ok"}`
 		req := httptest.NewRequest(http.MethodPost, "/spenders", strings.NewReader(payload))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
