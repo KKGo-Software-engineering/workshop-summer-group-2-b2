@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
-)git
+)
 		payload := `{"name": "HongJot", "email": "hong@jot.ok"}`
 		req := httptest.NewRequest(http.MethodPost, "/spenders", strings.NewReader(payload))
 		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
