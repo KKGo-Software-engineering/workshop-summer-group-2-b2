@@ -32,7 +32,7 @@ func TestGetSummary(t *testing.T) {
 			SELECT
 				SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END) AS total_income,
 				SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) AS total_expenses
-			FROM public."transaction"
+			FROM public.transaction
 			WHERE spender_id = $1 -- Assuming you want to filter by a specific spender
 		)
 		SELECT
@@ -67,7 +67,7 @@ func TestGetSummary(t *testing.T) {
 			SELECT
 				SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END) AS total_income,
 				SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) AS total_expenses
-			FROM public."transaction"
+			FROM public.transaction
 			WHERE spender_id = $1 -- Assuming you want to filter by a specific spender
 		)
 		SELECT

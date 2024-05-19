@@ -2,6 +2,7 @@ package summary
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/KKGo-Software-engineering/workshop-summer/api/mlog"
@@ -20,7 +21,7 @@ const (
         SELECT
             SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END) AS total_income,
             SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) AS total_expenses
-        FROM public."transaction"
+        FROM public.transaction
         WHERE spender_id = $1 -- Assuming you want to filter by a specific spender
     )
     SELECT
@@ -51,6 +52,7 @@ func (h handler) GetSummary(c echo.Context) error {
 	rows, err := h.db.QueryContext(ctx, summaryStmt, query.ID)
 
 	if err != nil {
+		fmt.Println("🚀 | file: summary.go | line 54 | func | err : ", err)
 		logger.Error("query error", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
