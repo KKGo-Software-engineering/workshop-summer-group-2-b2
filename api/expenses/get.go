@@ -43,5 +43,9 @@ func (h handler) GetAll(c echo.Context) error {
 		txs = append(txs, tx)
 	}
 
+	if len(txs) == 0 {
+		return c.JSON(http.StatusOK, []model.Transaction{})
+	}
+
 	return c.JSON(http.StatusOK, txs)
 }

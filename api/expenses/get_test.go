@@ -87,4 +87,28 @@ func TestGetAllExpense(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
+
+	t.Run("get all expenses succesfully", func(t *testing.T) {
+		e := echo.New()
+		defer e.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/expenses", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		db, mock, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		defer db.Close()
+
+		rows := sqlmock.NewRows([]string{"id", "date", "amount", "category", "transaction_type", "note", "image_url", "spender_id"})
+
+		mock.ExpectQuery(`SELECT id,date,amount,category,transaction_type,note,image_url,spender_id FROM transaction WHERE transaction_type = 'expense'`).WillReturnRows(rows)
+
+		h := New(config.FeatureFlag{}, db)
+		err := h.GetAll(c)
+
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.JSONEq(t, `[]`, rec.Body.String())
+	})
+
 }
