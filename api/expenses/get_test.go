@@ -141,7 +141,7 @@ func TestGetAllExpense(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.JSONEq(t, `[
-			{"amount":1000, "category":"food", "date":"2024-05-18T00:00:00Z", "id":1, "image_url":"image_url", "note":"note", "spender_id":"1", "transaction_type":"expense"}
+			{"amount":1000, "category":"food", "date":"2024-05-18T00:00:00Z", "id":1, "image_url":"image_url", "note":"note", "spender_id":1, "transaction_type":"expense"}
 	]`, rec.Body.String())
 	})
 	t.Run("get expenses with amount query params should call query with amount arg", func(t *testing.T) {
@@ -171,7 +171,7 @@ func TestGetAllExpense(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.JSONEq(t, `[
-			{"amount":1000, "category":"food", "date":"2024-05-18T00:00:00Z", "id":1, "image_url":"image_url", "note":"note", "spender_id":"1", "transaction_type":"expense"}
+			{"amount":1000, "category":"food", "date":"2024-05-18T00:00:00Z", "id":1, "image_url":"image_url", "note":"note", "spender_id":1, "transaction_type":"expense"}
 	]`, rec.Body.String())
 	})
 	t.Run("get expenses with category query params should call query with category arg", func(t *testing.T) {
@@ -201,7 +201,7 @@ func TestGetAllExpense(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
 		assert.JSONEq(t, `[
-			{"amount":1000, "category":"food", "date":"2024-05-18T00:00:00Z", "id":1, "image_url":"image_url", "note":"note", "spender_id":"1", "transaction_type":"expense"}
+			{"amount":1000, "category":"food", "date":"2024-05-18T00:00:00Z", "id":1, "image_url":"image_url", "note":"note", "spender_id":1, "transaction_type":"expense"}
 	]`, rec.Body.String())
 	})
 
