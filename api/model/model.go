@@ -10,5 +10,5 @@ type Transaction struct {
 	TransactionType string    `json:"transaction_type"`
 	Note            string    `json:"note,omitempty"`
 	ImageURL        string    `json:"image_url,omitempty"`
-	SpenderId       string    `json:"spender_id,omitempty"`
+	SpenderId       int64     `json:"spender_id,omitempty"`
 }
