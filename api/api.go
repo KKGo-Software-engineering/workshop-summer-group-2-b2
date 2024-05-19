@@ -9,6 +9,7 @@ import (
 	"github.com/KKGo-Software-engineering/workshop-summer/api/health"
 	"github.com/KKGo-Software-engineering/workshop-summer/api/mlog"
 	"github.com/KKGo-Software-engineering/workshop-summer/api/spender"
+	"github.com/KKGo-Software-engineering/workshop-summer/api/summary"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
@@ -29,6 +30,11 @@ func New(db *sql.DB, cfg config.Config, logger *zap.Logger) *Server {
 	v1.GET("/slow", health.Slow)
 	v1.GET("/health", health.Check(db))
 	v1.POST("/upload", eslip.Upload)
+
+	{
+		h := summary.New(db)
+		v1.GET("/summary", h.GetSummary)
+	}
 
 	v1.Use(middleware.BasicAuth(AuthCheck))
 

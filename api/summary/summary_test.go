@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetExpenseSummary(t *testing.T) {
+func TestGetSummary(t *testing.T) {
 	t.Run("get spender expenses summary", func(t *testing.T) {
 		e := echo.New()
 		defer e.Close()
@@ -26,16 +26,30 @@ func TestGetExpenseSummary(t *testing.T) {
 		db, mock, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 		defer db.Close()
 
-		rows := sqlmock.NewRows([]string{"amount"}).
-			AddRow(100).
-			AddRow(50)
-		mock.ExpectQuery(`SELECT amount FROM transaction WHERE spender_id = $1 AND transaction_type = 'expense'`).WillReturnRows(rows)
+		rows := sqlmock.NewRows([]string{"total_income", "total_expense", "current_balance"}).
+			AddRow(1000, 500, 500)
+		mock.ExpectQuery(` WITH balance_summary AS (
+			SELECT
+				SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END) AS total_income,
+				SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) AS total_expenses
+			FROM public."transaction"
+			WHERE spender_id = $1 -- Assuming you want to filter by a specific spender
+		)
+		SELECT
+			total_income,
+			total_expenses,
+			total_income - total_expenses AS current_balance
+		FROM balance_summary;`).WillReturnRows(rows)
 		h := New(db)
-		err := h.GetExpenseSummary(c)
+		err := h.GetSummary(c)
 
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.JSONEq(t, `{"TotalExpenses": 150}`, rec.Body.String())
+		assert.JSONEq(t, `{
+			"total_income": 1000,
+			"total_expenses": 500,
+			"current_balance": 500
+		}`, rec.Body.String())
 	})
 
 	t.Run("get expense summar failed on database", func(t *testing.T) {
@@ -49,10 +63,21 @@ func TestGetExpenseSummary(t *testing.T) {
 		db, mock, _ := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
 		defer db.Close()
 
-		mock.ExpectQuery(`SELECT amount FROM transaction WHERE spender_id = $1 AND transaction_type = 'expense'`).WillReturnError(assert.AnError)
+		mock.ExpectQuery(` WITH balance_summary AS (
+			SELECT
+				SUM(CASE WHEN transaction_type = 'income' THEN amount ELSE 0 END) AS total_income,
+				SUM(CASE WHEN transaction_type = 'expense' THEN amount ELSE 0 END) AS total_expenses
+			FROM public."transaction"
+			WHERE spender_id = $1 -- Assuming you want to filter by a specific spender
+		)
+		SELECT
+			total_income,
+			total_expenses,
+			total_income - total_expenses AS current_balance
+		FROM balance_summary;`).WillReturnError(assert.AnError)
 
 		h := New(db)
-		err := h.GetExpenseSummary(c)
+		err := h.GetSummary(c)
 
 		assert.NoError(t, err)
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)

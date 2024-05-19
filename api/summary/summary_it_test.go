@@ -17,18 +17,13 @@ import (
 
 func TestExpenseSummaryIT(t *testing.T) {
 	t.Run("get expense summary successfully", func(t *testing.T) {
-		sql, err := getTestDatabaseFromConfig()
-		if err != nil {
-			t.Error(err)
-		}
-		migration.ApplyMigrations(sql)
-		defer migration.RollbackMigrations(sql)
+		sql := newDatabase(t)
 
 		h := New(sql)
 		e := echo.New()
 		defer e.Close()
 
-		e.GET("/expenses/summary", h.GetExpenseSummary)
+		e.GET("/expenses/summary", h.GetSummary)
 
 		req := httptest.NewRequest(http.MethodGet, "/expenses/summary", nil)
 		q := req.URL.Query()
@@ -39,15 +34,27 @@ func TestExpenseSummaryIT(t *testing.T) {
 		e.ServeHTTP(rec, req)
 
 		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.JSONEq(t, `{"TotalExpenses": 0}`, rec.Body.String())
+		assert.JSONEq(t, `{
+			"total_income": 2000,
+			"total_expenses": 500,
+			"current_balance": 1500
+		}`, rec.Body.String())
 	})
 }
 
-func getTestDatabaseFromConfig() (*sql.DB, error) {
+func newDatabase(t *testing.T) *sql.DB {
 	cfg := config.Parse("DOCKER")
 	sql, err := sql.Open("postgres", cfg.PostgresURI())
 	if err != nil {
-		return nil, err
+		t.Fatal(err)
 	}
-	return sql, nil
+	migration.ApplyMigrations(sql)
+	sql.Query("INSERT INTO public.transaction (amount, transaction_type, spender_id) VALUES (1000, 'income',1);")
+	sql.Query("INSERT INTO public.transaction (amount, transaction_type, spender_id) VALUES (500, 'expense',1);")
+	sql.Query("INSERT INTO public.transaction (amount, transaction_type, spender_id) VALUES (1000, 'income',1);")
+	t.Cleanup(func() {
+		sql.Query("DELETE FROM public.transaction WHERE spender_id = 1;")
+		sql.Close()
+	})
+	return sql
 }

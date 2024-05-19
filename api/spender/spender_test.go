@@ -96,7 +96,6 @@ func TestCreateSpender(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	})
 }
-
 func TestGetAllSpender(t *testing.T) {
 	t.Run("get all spender succesfully", func(t *testing.T) {
 		e := echo.New()
