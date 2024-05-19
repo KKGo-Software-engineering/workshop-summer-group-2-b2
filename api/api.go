@@ -47,6 +47,7 @@ func New(db *sql.DB, cfg config.Config, logger *zap.Logger) *Server {
 	{
 		h := expenses.New(cfg.FeatureFlag, db)
 		v1.GET("/expenses", h.GetExpenses)
+		v1.POST("/expenses", h.Create)
 	}
 
 	return &Server{e}

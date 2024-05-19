@@ -1,22 +1,13 @@
-package transaction
+package expenses
 
 import (
-	"database/sql"
 	"net/http"
 
+	"github.com/KKGo-Software-engineering/workshop-summer/api/mlog"
 	"github.com/KKGo-Software-engineering/workshop-summer/api/model"
-	"github.com/kkgo-software-engineering/workshop/mlog"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
-
-type handler struct {
-	db *sql.DB
-}
-
-func New(db *sql.DB) *handler {
-	return &handler{db}
-}
 
 const (
 	cStmt = `INSERT INTO transaction (date, amount, category, transaction_type, note, image_url, spender_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id;`

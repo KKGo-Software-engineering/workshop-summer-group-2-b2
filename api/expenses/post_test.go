@@ -1,19 +1,17 @@
-package transaction_test
+package expenses
 
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/KKGo-Software-engineering/workshop-summer/api/config"
+	"github.com/KKGo-Software-engineering/workshop-summer/api/model"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
-
-	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-
-	"github.com/KKGo-Software-engineering/workshop-summer/api/model"
-	"github.com/KKGo-Software-engineering/workshop-summer/api/transaction"
 )
 
 func TestCreateSpender(t *testing.T) {
@@ -45,7 +43,7 @@ func TestCreateSpender(t *testing.T) {
 			WithArgs(transactions.Date, transactions.Amount, transactions.Category, transactions.TransactionType, transactions.Note, transactions.ImageURL, transactions.SpenderId).
 			WillReturnRows(row)
 
-		h := transaction.New(db)
+		h := New(config.FeatureFlag{}, db)
 		err = h.Create(c)
 
 		assert.NoError(t, err)
